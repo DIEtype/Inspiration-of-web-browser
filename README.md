@@ -1,106 +1,182 @@
 # Inspiration Hub Extension
 
-一个面向 Chrome / Edge 的 Chromium 扩展，用来在浏览网页时快速记录灵感、整理笔记、沉淀来源，并把这些素材交给 AI 做总结、发散和连接建议。
+A Chrome / Edge extension for capturing ideas while browsing, preserving their source, and turning raw notes into material for structured reflection or AI-assisted exploration.
 
-> 本项目是一个基于个人使用需求的 `vibe-coding` 协作产物：由我提出工作流与交互要求，再与 Codex 共同生成、修改和打磨。
+> This project is a practical `vibe-coding` collaboration artifact: the workflow and interaction design came from real usage needs, and the implementation was iterated together with AI.
 
-## 这个插件适合做什么
+## What It Does
 
-很多灵感都来自浏览网页时的瞬间判断：
-- 看到一个新数据库或工具
-- 发现一种值得尝试的方法
-- 刷到一篇启发性的研究或帖子
-- 突然想到某个产品创意或工作流优化
+Inspiration often appears in fragments while browsing:
+- a new database or tool
+- a useful method or workflow
+- a research paper or forum post
+- a product idea worth exploring later
 
-`Inspiration Hub` 的目标不是做一个复杂的知识管理系统，而是先帮你把这些“稍纵即逝的素材”记录下来，并且带上来源，方便后续回看、连接、讨论和落地。
+`Inspiration Hub` is designed to capture those fragments quickly, keep the original source attached, and make them easier to organize, revisit, and discuss.
 
-## 当前功能
+## Features
 
-### 记录与整理
-- 悬浮小球唤起面板
-- 小球支持拖拽移动与位置锁定
-- 面板支持点击外部自动收回
-- 自动绑定当前网页来源
-  - 页面标题
+### Capture and Organize
+- Floating bubble on every page
+- Draggable and lockable collapsed bubble
+- Click outside the panel to collapse it
+- Auto-bind current page source
+  - page title
   - URL
-  - 域名
-- 支持读取当前选中文本
-- 支持读取剪贴板内容
-- 支持手动编辑标题、正文、标签、分类
-- 支持为灵感笔记添加 TODO 状态与归档
+  - domain
+- Capture selected text
+- Read clipboard content
+- Edit title, content, tags, and category
+- Track notes as TODO and archive them later
 
-### 分类与检索
-- 分类：`Database` / `Method` / `Creative` / `Research` / `Product` / `Workflow` / `Other`
-- 自动分类建议
-- 标签输入
-- 按分类筛选
-- 关键词搜索
-- 可显示/隐藏已归档 TODO
+### Categories and Filtering
+- Categories: `Database`, `Method`, `Creative`, `Research`, `Product`, `Workflow`, `Other`
+- Auto category suggestion
+- Tag input
+- Filter by category
+- Keyword search
+- Optional archived-TODO visibility
 
-### AI 能力
-- 可配置外部 LLM API
-- 基于当前筛选笔记发起 `Ask Agent`
-- 生成 `AI Brief` 作为讨论素材包
-- `AI Auto-Link` 生成笔记间连接提案
-- 可接受或丢弃连接提案
+### AI-Related Features
+- Configurable external LLM API
+- `Ask Agent` on the currently filtered notes
+- `Generate AI Brief` for exporting a structured discussion pack
+- `AI Auto-Link` for note-to-note link proposals
+- Accept or dismiss link proposals
 
-### 导出能力
-- 导出 `.txt`
-- 导出 `.json`
-- 导出 Obsidian 可接受的 `.md`
-  - 每条笔记一个文件
-  - 无连接时也可作为普通 Obsidian 笔记使用
-  - 有已接受连接时会附带可选的关联内容
+### Export
+- Export as `.txt`
+- Export as `.json`
+- Export as Obsidian-compatible `.md`
+  - one file per note
+  - valid as a normal note even without links
+  - accepted links can be included as optional related-note metadata
 
-## 安装方式
+## Installation
 
 ### Chrome
-1. 打开 `chrome://extensions`
-2. 开启“开发者模式”
-3. 点击“加载已解压的扩展程序”
-4. 选择项目目录：`..\inspiration-capture-extension`
+1. Open `chrome://extensions`
+2. Enable Developer Mode
+3. Click `Load unpacked`
+4. Select the `inspiration-capture-extension` folder
 
 ### Edge
-1. 打开 `edge://extensions`
-2. 开启“开发者模式”
-3. 点击“加载解压缩的扩展”
-4. 选择项目目录：`..\inspiration-capture-extension`
+1. Open `edge://extensions`
+2. Enable Developer Mode
+3. Click `Load unpacked`
+4. Select the `inspiration-capture-extension` folder
 
-## 推荐使用方式
+## Architecture
 
-1. 浏览网页时，看到值得记录的内容
-2. 点击右下角悬浮小球展开面板
-3. 直接使用“选中文本”或“读取剪贴板”填入内容
-4. 补充标题、标签、分类，必要时标记为 TODO
-5. 保存后按分类或搜索回看
-6. 需要整理时生成 `AI Brief` 或直接 `Ask Agent`
-7. 需要建立知识连接时再运行 `AI Auto-Link`
-8. 最后按需导出到本地或 Obsidian
+The extension has a simple split:
+- `content.js` handles the floating UI, note editing, local context construction, and user interactions
+- `background.js` handles downloads and external LLM API requests
+- `chrome.storage.local` stores notes, links, UI preferences, and API settings locally
 
-## 数据与同步说明
+```mermaid
+flowchart TD
+    A["User opens floating bubble"] --> B["content.js panel UI"]
+    B --> C["Capture note content"]
+    B --> D["Capture page source<br/>title + url + domain"]
+    B --> E["Use selection / clipboard"]
 
-- 当前数据保存在浏览器本地的 `chrome.storage.local`
-- 这意味着：
-  - Chrome 和 Edge 默认**不会自动共享同一份数据**
-  - 不同浏览器 profile 之间也默认独立
-- API Key 目前同样保存在本地存储中，方便测试与个人使用，但不等同于加密保险库
+    C --> F["chrome.storage.local"]
+    D --> F
+    E --> C
 
-## 项目结构
+    B --> G["Generate AI Brief"]
+    G --> H["buildAIBrief(...)"]
+    H --> I["Show / copy / export brief"]
 
-- `manifest.json`：扩展清单
-- `content.js`：主界面与交互逻辑
-- `content.css`：悬浮窗与面板样式
-- `background.js`：下载与 Agent 请求等后台逻辑
+    B --> J["Ask Agent"]
+    J --> K["buildAgentContext(...)"]
+    K --> L["chrome.runtime.sendMessage"]
+    L --> M["background.js -> askAgent(...)"]
+    M --> N["External LLM API"]
+    N --> O["Agent reply back to panel"]
 
-## 已知边界
+    B --> P["AI Auto-Link"]
+    P --> Q["Local candidate pairs"]
+    Q --> R["buildLinkingContext(...)"]
+    R --> L
+    N --> S["Link proposals"]
+    S --> T["Accept / dismiss"]
+    T --> F
 
-- 跨浏览器数据目前不自动互通
-- 自动建链目前是“提案模式”，不是完全自动维护知识图谱
-- 不同网页对剪贴板权限的支持会有差异
-- 部分交互仍在根据真实使用体验持续微调
+    F --> U["Export TXT / JSON / Obsidian"]
+```
 
+## How The AI Flow Actually Works
+
+This project currently has **three different AI-adjacent flows**, and they are not the same thing.
+
+### 1. `Generate AI Brief` is local, not a model call
+This feature does **not** call an API.
+
+It takes the currently filtered notes and builds a structured markdown/text briefing package locally inside the extension. That package is meant to be:
+- copied into an external LLM chat
+- exported for later use
+- used as a compact discussion prompt
+
+Implementation reference:
+- `content.js` -> `buildAIBrief(...)`
+
+### 2. `Ask Agent` does call an external LLM API
+This feature works in two stages:
+- the content script collects the filtered notes and compresses them into a text context
+- the background script sends that context, your question, and the configured system prompt to the external chat-completions endpoint
+
+Implementation references:
+- `content.js` -> `buildAgentContext(...)`
+- `content.js` -> `askAgentBtn` click handler + `chrome.runtime.sendMessage(...)`
+- `background.js` -> `askAgent(...)`
+
+So the current agent is not maintaining a persistent knowledge graph. It is answering based on a temporary text context assembled from the selected notes.
+
+### 3. `AI Auto-Link` is a proposal flow, not a full autonomous graph engine
+The current linking flow is:
+- the extension creates candidate note pairs locally
+- it builds a linking context text block
+- it asks the configured LLM to judge which pairs are meaningful and what relation they may have
+- the returned results are stored as suggested links
+
+Implementation references:
+- `content.js` -> `buildLinkingContext(...)`
+- `content.js` -> `handleAutoLink(...)`
+- `background.js` -> `askAgent(...)`
+
+This means it is currently a **proposal system**, not yet an embedding-backed self-maintaining note graph.
+
+## Data and Sync
+
+- Notes and settings are stored in `chrome.storage.local`
+- Chrome and Edge do **not** automatically share the same note database
+- Different browser profiles are also isolated by default
+- API keys are currently stored locally for convenience and are not treated as a secure vault
+
+## Project Structure
+
+- `manifest.json`: extension manifest
+- `content.js`: UI, note handling, local brief generation, and panel interactions
+- `content.css`: bubble and panel styles
+- `background.js`: downloads and external agent requests
+
+## Known Limits
+
+- No automatic cross-browser sync yet
+- The current auto-link flow is suggestion-based
+- Clipboard behavior depends on page permissions
+- Long-note semantic linking is not yet embedding-based
+
+## Possible Next Steps
+
+- Cross-browser import / merge
+- Embedding-based incremental linking
+- Multi-agent discussion modes
+- Richer Obsidian export
+- Shared or synced knowledge storage
 
 ## License
-MIT
 
+This repository includes an MIT License in [`LICENSE`](./LICENSE).
 
