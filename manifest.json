@@ -1,0 +1,22 @@
+﻿{
+  "manifest_version": 3,
+  "name": "Inspiration Capture Floating Panel",
+  "description": "Floating note hub with source tracking, optional AI link graph, and Obsidian export.",
+  "version": "0.4.0",
+  "permissions": ["storage", "downloads", "clipboardRead", "clipboardWrite"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Inspiration Capture"
+  }
+}
