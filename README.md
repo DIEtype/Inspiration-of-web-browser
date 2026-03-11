@@ -2,7 +2,7 @@
 
 A Chrome / Edge extension for capturing ideas while browsing, preserving their source, and turning raw notes into material for structured reflection or AI-assisted exploration.
 
-> This project is a practical `vibe-coding` collaboration artifact: the workflow and interaction design came from real usage needs, and the implementation was iterated together with AI.
+> This project is a practical `vibe-coding` collaboration artifact: the workflow and interaction design came from real usage needs, and the implementation was iterated together with Codex.
 
 ## What It Does
 
@@ -168,15 +168,9 @@ This means it is currently a **proposal system**, not yet an embedding-backed se
 - Clipboard behavior depends on page permissions
 - Long-note semantic linking is not yet embedding-based
 
-## Possible Next Steps
-
-- Cross-browser import / merge
-- Embedding-based incremental linking
-- Multi-agent discussion modes
-- Richer Obsidian export
-- Shared or synced knowledge storage
 
 ## License
 
 This repository includes an MIT License in [`LICENSE`](./LICENSE).
+
 
