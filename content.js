@@ -19,6 +19,11 @@
   const CATEGORY_LABEL = Object.fromEntries(CATEGORY_META.map((item) => [item.value, item.label]));
   const CATEGORY_ORDER = CATEGORY_META.map((item) => item.value);
   const VALID_CATEGORIES = new Set(CATEGORY_ORDER);
+  const EXECUTION_LABEL = {
+    idea: "Idea",
+    todo: "TODO",
+    archived: "Archived"
+  };
 
   const DEFAULT_AGENT_CONFIG = {
     endpoint: "https://api.openai.com/v1/chat/completions",
@@ -161,6 +166,7 @@
   const toggleBtn = root.querySelector("#icp-toggle");
   const toggleLockBtn = root.querySelector("#icp-toggle-lock");
   const collapseBtn = root.querySelector("#icp-collapse");
+  const panelEl = root.querySelector("#icp-panel");
 
   const sourceTitleEl = root.querySelector("#icp-source-title");
   const sourceLinkEl = root.querySelector("#icp-source-link");
@@ -267,6 +273,8 @@
           .filter(Boolean)
       )
     ).slice(0, 20);
+
+  const getExecutionLabel = (state) => EXECUTION_LABEL[state] || EXECUTION_LABEL.idea;
 
   const inferCategory = (title, content, sourceUrl) => {
     const haystack = `${title} ${content} ${sourceUrl}`.toLowerCase();
@@ -486,6 +494,7 @@
       root.style.top = "";
       root.style.right = "16px";
       root.style.bottom = "16px";
+      syncPanelPlacement();
       return;
     }
 
@@ -494,6 +503,29 @@
     root.style.top = "auto";
     root.style.right = "auto";
     root.style.bottom = `${next.bottom}px`;
+    syncPanelPlacement();
+  };
+
+  const syncPanelPlacement = () => {
+    if (root.classList.contains("icp-collapsed")) {
+      root.classList.remove("icp-panel-below");
+      panelEl.style.maxHeight = "";
+      return;
+    }
+
+    const viewportPadding = 12;
+    const panelGap = 10;
+    const rootRect = root.getBoundingClientRect();
+    const preferredMax = Math.floor(window.innerHeight * 0.78);
+    const naturalHeight = Math.max(240, Math.min(panelEl.scrollHeight || preferredMax, preferredMax));
+    const aboveSpace = Math.max(180, Math.floor(rootRect.top - viewportPadding - panelGap));
+    const belowSpace = Math.max(180, Math.floor(window.innerHeight - rootRect.bottom - viewportPadding - panelGap));
+    const shouldOpenBelow = aboveSpace < Math.min(naturalHeight, 320) && belowSpace > aboveSpace;
+    const availableSpace = shouldOpenBelow ? belowSpace : aboveSpace;
+    const maxHeight = Math.max(180, Math.min(preferredMax, availableSpace));
+
+    root.classList.toggle("icp-panel-below", shouldOpenBelow);
+    panelEl.style.maxHeight = `${maxHeight}px`;
   };
 
   const syncLockUi = () => {
@@ -989,15 +1021,21 @@
   const toggleCollapsed = (collapsed) => {
     if (collapsed) {
       root.classList.add("icp-collapsed");
+      root.classList.remove("icp-panel-below");
+      panelEl.style.maxHeight = "";
       return;
     }
 
     root.classList.remove("icp-collapsed");
+    syncPanelPlacement();
     if (!editingNoteId) {
       draftSource = captureCurrentPage();
       renderSourcePreview();
     }
-    contentInput.focus();
+    requestAnimationFrame(() => {
+      syncPanelPlacement();
+      contentInput.focus();
+    });
   };
 
   const startDrag = (event) => {
@@ -1482,6 +1520,7 @@
   window.addEventListener("pointermove", handleDragMove);
   window.addEventListener("pointerup", stopDrag);
   window.addEventListener("pointercancel", stopDrag);
+  window.addEventListener("resize", syncPanelPlacement);
   document.addEventListener("pointerdown", handleOutsidePointerDown, true);
 
   useSelectionBtn.addEventListener("click", () => {
@@ -1773,6 +1812,7 @@
   loadAllData();
   resetEditor();
 })();
+
 
 
 

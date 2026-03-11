@@ -1,4 +1,10 @@
-﻿#icp-root {
+#icp-root {
+  all: initial;
+  box-sizing: border-box;
+  color-scheme: light;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
   position: fixed;
   right: 16px;
   bottom: 16px;
@@ -9,16 +15,37 @@
   width: max-content;
 }
 
+#icp-root,
+#icp-root * {
+  box-sizing: border-box;
+}
+
+#icp-root button,
+#icp-root input,
+#icp-root select,
+#icp-root textarea,
+#icp-root summary {
+  font: inherit;
+  color: inherit;
+}
+
 #icp-toggle {
   border: 0;
   border-radius: 999px;
-  padding: 10px 14px;
-  font-weight: 700;
-  background: #0b57d0;
-  color: #fff;
+  padding: 10px 16px;
+  font-family: "Aptos Display", "Bahnschrift SemiBold", "Trebuchet MS", "Candara", sans-serif;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 48%, #1d4ed8 100%);
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  text-align: center;
   cursor: grab;
   user-select: none;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 0 rgba(18, 51, 126, 0.22), 0 0 14px rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.26);
 }
 
 #icp-toggle-lock {
@@ -60,15 +87,24 @@
 #icp-panel {
   position: absolute;
   right: 0;
-  bottom: calc(100% + 10px);
+  top: auto;
   width: min(430px, 95vw);
-  max-height: 78vh;
+  max-height: var(--icp-panel-max-height, 78vh);
   overflow: auto;
   background: #ffffff;
   border: 1px solid #d9dde3;
   border-radius: 14px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
   padding: 10px;
+}
+
+#icp-root:not(.icp-panel-below) #icp-panel {
+  bottom: calc(100% + 10px);
+}
+
+#icp-root.icp-panel-below #icp-panel {
+  top: calc(100% + 10px);
+  bottom: auto;
 }
 
 #icp-root.icp-collapsed #icp-panel {
@@ -657,6 +693,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
 
 
 
